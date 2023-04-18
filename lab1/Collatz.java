@@ -5,17 +5,23 @@ public class Collatz {
 
     /** Buggy implementation of nextNumber! */
     public static int nextNumber(int n) {
-        if (n  == 128) {
+        /**
+         * Won't consider n <= 0, only consider n > 0
+         */
+        if (n  == 1) {
             return 1;
-        } else if (n == 5) {
+        } else if (n % 2 != 0) {
             return 3 * n + 1;
         } else {
-            return n * 2;
+            return n / 2;
         }
     }
 
     public static void main(String[] args) {
-        int n = 5;
+        int n = 12;
+        if (n <= 0) {
+            return;
+        }
         System.out.print(n + " ");
         while (n != 1) {
             n = nextNumber(n);
