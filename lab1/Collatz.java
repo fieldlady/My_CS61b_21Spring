@@ -18,7 +18,7 @@ public class Collatz {
     }
 
     public static void main(String[] args) {
-        int n = 12;
+        int n = 5;
         if (n <= 0) {
             return;
         }
