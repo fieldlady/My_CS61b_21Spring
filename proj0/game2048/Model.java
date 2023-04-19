@@ -5,7 +5,7 @@ import java.util.Observable;
 
 
 /** The state of a game of 2048.
- *  @author TODO: YOUR NAME HERE
+ *  @author swang895
  */
 public class Model extends Observable {
     /** Current contents of the board. */
@@ -114,12 +114,59 @@ public class Model extends Observable {
         // for the tilt to the Side SIDE. If the board changed, set the
         // changed local variable to true.
 
+        board.setViewingPerspective(side);
+
+        int size = board.size();
+        for (int c = 0; c < size; c++) {
+            if (up(c)) {
+                changed = true;
+            }
+        }
+        board.setViewingPerspective(Side.NORTH);
+
         checkGameOver();
         if (changed) {
             setChanged();
         }
         return changed;
     }
+
+    private boolean up(int col) {
+        int size = board.size();
+        int availableRow = size - 1;
+        boolean change = false;
+
+        for (int row = size - 2; row >= 0; row--) {
+            Tile curTile = board.tile(col, row);
+            if (curTile == null) {
+                continue;
+            } else {
+                Tile upTile = board.tile(col, availableRow);
+                if (upTile == null) {
+                    board.move(col, availableRow, curTile);
+                    curTile = null;
+                    change = true;
+                } else {
+                    if (curTile.value() != upTile.value()) {
+                        availableRow--;
+                        if (availableRow == row) {
+                            continue;
+                        } else {
+                            row++;
+                        }
+                    } else {
+                        board.move(col, availableRow, curTile);
+                        score += board.tile(col, availableRow).value();
+                        change = true;
+                        curTile = null;
+                        availableRow--;
+                    }
+                }
+            }
+        }
+        return change;
+    }
+
 
     /** Checks if the game is over and sets the gameOver variable
      *  appropriately.
@@ -138,6 +185,15 @@ public class Model extends Observable {
      * */
     public static boolean emptySpaceExists(Board b) {
         // TODO: Fill in this function.
+        int boardSize = b.size();
+        for (int col = 0; col < boardSize; col++) {
+            for (int row = 0; row < boardSize; row++) {
+                Tile curTile = b.tile(col, row);
+                if (curTile == null) {
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
@@ -148,6 +204,15 @@ public class Model extends Observable {
      */
     public static boolean maxTileExists(Board b) {
         // TODO: Fill in this function.
+        int boardSize = b.size();
+        for (int col = 0; col < boardSize; col++) {
+            for (int row = 0; row < boardSize; row++) {
+                Tile curTile = b.tile(col, row);
+                if (curTile != null && curTile.value() == MAX_PIECE) {
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
@@ -159,8 +224,46 @@ public class Model extends Observable {
      */
     public static boolean atLeastOneMoveExists(Board b) {
         // TODO: Fill in this function.
+        if (emptySpaceExists(b)) {
+            return true;
+        }
+        for (int r = 0; r < b.size(); r++) {
+            if (rowAdjacentSame(b, r)) {
+                return true;
+            }
+        }
+
+        for (int c = 0; c < b.size(); c++) {
+            if (colAdjacentSame(b, c)) {
+                return true;
+            }
+        }
+
         return false;
     }
+
+    private static boolean colAdjacentSame(Board b, int col) {
+        for (int row = 0; row < b.size() - 1; row++) {
+            Tile cur = b.tile(col, row);
+            Tile next = b.tile(col, row + 1);
+            if (cur.value() == next.value()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean rowAdjacentSame(Board b, int row) {
+        for (int col = 0; col < b.size() - 1; col++) {
+            Tile cur = b.tile(col, row);
+            Tile next = b.tile(col + 1, row);
+            if (cur.value() == next.value()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
 
     @Override
